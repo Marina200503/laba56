@@ -1,34 +1,30 @@
 package managers;
 
-import models.LabWork;
+import models.*;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
+
 /**
  * оперирует коллекцией
  */
 public class CollectionManager {
-    private int currentId = 1;
-    private Map<Integer, LabWork> labWorks = new HashMap<>();
-
-    private HashSet<LabWork> collection = new HashSet<>();
+    private long currentId = 1;
+    private LinkedList<LabWork> labWorks = new LinkedList<>();
     private LocalDateTime lastInitTime;
     private LocalDateTime lastSaveTime;
-    private final DumpManager dumpManager;
 
-    public CollectionManager(DumpManager dumpManager) {
+
+    public CollectionManager() {
         this.lastInitTime = null;
         this.lastSaveTime = null;
-        this.dumpManager = dumpManager;
     }
 
     /**
      * @return коллекция
      */
-    public HashSet <LabWork> getCollection(){
-        return collection;
+    public LinkedList<LabWork> getCollection() {
+        return labWorks;
     }
 
     /**
@@ -46,68 +42,90 @@ public class CollectionManager {
     }
 
     /**
-     * сохраняет коллекцию в файл
-     */
-    public void saveCollection() {
-        dumpManager.writeCollection(collection);
-        lastSaveTime = LocalDateTime.now();
-    }
-
-    /**
      * добавляет лабораторную работу
+     *
      * @param labWork - экземпляр лабораторной работы
      * @return успешность выполнения команды
      */
-    public boolean add(LabWork labWork){
+    public boolean add(LabWork labWork) {
         if (labWork == null) return false;
-        labWorks.put(labWork.getId(), labWork);
-        collection.add(labWork);
+        labWorks.add(labWork);
         return true;
     }
-
-    public LabWork byId(int id) {
-        return labWorks.get(id);
+    /**
+     * считает количество лабораторных работ, сложность которых больше заданной
+     *
+     * @param difficulty - сложность лабораторной работы
+     * @return количество лабораторных работ
+     */
+    public int countGreaterThanDifficulty(Difficulty difficulty) {
+        return (int)(labWorks
+                .stream()
+                .filter(e -> (e.getDifficulty().compareTo(difficulty) > 0))
+                .count());
     }
-
-
-    public int getFreeId() {
+    /**
+     * Добавляет элемент по заданному id
+     *
+     * @param id - заданный идентификатор
+     * @return объект лабораторной работы
+     */
+    public LabWork byId(long id) {
+        return labWorks
+                .stream()
+                .filter(e -> e.getId() == id) //e.getId() = id если tru, возвращает, иначе в этом стриме его не существует
+                .findFirst()//вытаскиваем
+                .orElse(null); //возвращаем (если есть), иначе null
+    }
+    /**
+     * Возвращает не занятый id
+     * @return свободный id
+     */
+    public long getFreeId() {
         while (byId(currentId) != null)
             if (++currentId < 0)
                 currentId = 1;
         return currentId;
     }
+    /**
+     * Сортерует лабораторные работы по сложности
+     * @return отсортированную сложность
+     */
+    public List<Difficulty> getSortedByDifficulty() {
+        return labWorks
+                .stream()
+                .sorted(Comparator.reverseOrder())
+                .map(lw -> lw.getDifficulty())
+                .toList();
+    }
 
     /**
      * загружает коллекцию из файла
+     *
      * @return true в случае успеха
      */
     public boolean loadCollection() {
         labWorks.clear();
-        collection = (HashSet<LabWork>) dumpManager.readCollection();
+
+        labWorks = (LinkedList<LabWork>) new JsonManager().load();
         lastInitTime = LocalDateTime.now();
-        for (var e : collection)
-            if (byId(e.getId()) != null) {
-                collection.clear();
-                return false;
-            } else {
-                if (e.getId()>currentId) currentId = e.getId();
-                labWorks.put(e.getId(), e);
-            }
         return true;
     }
-
+    /**
+     * Проверяет коллекцию лабораторных работ на пустоту
+     * @return строковое представление лабораторных работ в коллекции
+     */
     @Override
     public String toString() {
-        if (collection.isEmpty()) return "Коллекция пуста!";
+        if (labWorks.isEmpty()) return "Коллекция пуста!";
 
         StringBuilder info = new StringBuilder();
-        for (LabWork labWork : collection) {
+        for (LabWork labWork : labWorks) {
             info.append(labWork + "\n\n");
         }
         return info.toString().trim();
     }
+
+
+
 }
-
-
-
-

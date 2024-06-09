@@ -38,7 +38,5 @@ public class CommandManager {
      * добавляет команду в историю.
      * @param command - команда.
      */
-    public void addToHistory(String command) {
-        commandHistory.add(command);
-    }
+
 }

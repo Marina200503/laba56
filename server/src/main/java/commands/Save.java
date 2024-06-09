@@ -1,6 +1,6 @@
 package commands;
 
-import managers.CollectionManager;
+import managers.*;
 import utility.Response;
 
 /**
@@ -21,7 +21,7 @@ public class Save extends Command {
     @Override
     public Response execute(String[] arguments, Object obj) {
         System.out.println("$ save");
-        collectionManager.saveCollection();
+        new JsonManager().save(collectionManager.getCollection());
         return new Response("OK");
     }
 }

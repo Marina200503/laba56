@@ -38,9 +38,6 @@ public class Runner {
         userCommand = (s.replace('\n',' ').replace('\r',' ') + " ").split(" ", 2);
         userCommand[1] = userCommand[1].trim();
         System.out.println("$ "+userCommand[0]);
-
-        commandManager.addToHistory(userCommand[0]);
-
         return launchCommand(userCommand, obj);
     }
 }

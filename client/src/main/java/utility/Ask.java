@@ -2,8 +2,7 @@ package utility;
 
 import models.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.NoSuchElementException;
@@ -80,14 +79,9 @@ public class Ask {
 
     public static Location askLocation(Console console) throws AskBreak {
         try {
-            /*
-            private Integer x; //Поле не может быть null
-            private int y;
-            private Integer z; //Поле не может быть null
-            private String name; //Поле может быть null
-             */
+
             console.print("person.location.x (empty for null-location): ");
-            Integer x;
+            float x;
             while (true) {
                 var line = console.readln().trim();
                 if (line.equals("exit")) throw new AskBreak();
@@ -96,7 +90,7 @@ public class Ask {
                 console.print("person.location.x: ");
             }
             console.print("person.location.y: ");
-            int y;
+            float y;
             while (true) {
                 var line = console.readln().trim();
                 if (line.equals("exit")) throw new AskBreak();
@@ -104,11 +98,11 @@ public class Ask {
                 console.print("person.location.y: ");
             }
             console.print("person.location.z: ");
-            Integer z;
+            Long z;
             while (true) {
                 var line = console.readln().trim();
                 if (line.equals("exit")) throw new AskBreak();
-                try { z = Integer.parseInt(line); break; } catch (NumberFormatException e) { }
+                try { z = Long.parseLong(line); break; } catch (NumberFormatException e) { }
                 console.print("person.location.z: ");
             }
             console.print("person.location.name: ");
@@ -145,42 +139,82 @@ public class Ask {
         }
     }
 
-    public static Person askPerson(Console console) throws AskBreak{
+    public static Person askPerson(Console console) {
         try {
             /*
             private String name; //Поле не может быть null, Строка не может быть пустой
-            private java.time.LocalDate birthday; //Поле не может быть null
+            private ZonedDateTime birthday; //Поле не может быть null
             private String passportID; //Строка не может быть пустой, Длина строки не должна быть больше 49, Длина строки должна быть не меньше 6, Поле может быть null
             private Location location; //Поле может быть null
             */
-            console.print("person.name (empty for null-person): ");
+            console.print("person.name(не пустая): ");
             String name;
             name = console.readln().trim();
-            if (name.equals("exit")) throw new AskBreak();
-            if (name.equals("")) return null;
+            if (name.isEmpty()) return null;
 
-            console.print("person.birthday (Example: "+LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE)+"): ");
-            LocalDate birthday;
+            console.print("Введите год рождения(не пустой) ");
+            ZonedDateTime birthday;
             while (true) {
-                var line = console.readln().trim();
-                if (line.equals("exit")) throw new AskBreak();
-                try { birthday = LocalDate.parse(line, DateTimeFormatter.ISO_LOCAL_DATE); break; } catch (DateTimeParseException e) { }
-                console.print("person.birthday: ");
+                try {
+                    int year = 0;
+                    while (year < 1900 || year > 2024) {
+                        console.println("Год должен принадлежать промежутку [1900; 2024]");
+                        year = Integer.parseInt(console.readln().trim());
+                    }
+                    int month = 0;
+                    while (month < 1 || month > 12) {
+                        console.println("Месяц должен принадлежать промежутку [1; 12]");
+                        month = Integer.parseInt(console.readln().trim());
+                    }
+                    int day = 0;
+                    int daysInMonth = YearMonth.of(year, month).lengthOfMonth();
+                    while (day < 1 || day > daysInMonth) {
+                        console.println("День должен принадлежать промежутку [1; " + daysInMonth + "]");
+                        day = Integer.parseInt(console.readln().trim());
+                    }
+                    birthday = ZonedDateTime.of(year,
+                            month,
+                            day,
+                            0,
+                            0,
+                            0,
+                            0,
+                            ZoneId.of("Europe/Moscow"));
+                    break;
+
+                } catch (NullPointerException | IllegalArgumentException e) {
+                }
+                console.print("Birthday: ");
             }
-            console.print("person.passportID: ");
-            String passportID;
+            Long height;
+            console.print("Введите person.height(число, не пустое): ");
             while (true) {
-                passportID = console.readln().trim();
-                if (passportID.equals("exit")) throw new AskBreak();
-                if (passportID.equals("")) { passportID = null; break; }
-                if (passportID.length() >= 6 && passportID.length() <= 49) break;
-                console.print("person.passportID: ");
+                String line = console.readln().trim();
+                try {
+                    height = Long.parseLong(line);
+                    break;
+                } catch (NumberFormatException e) {
+                }
+                console.print("person.height(число, не пустое): ");
+            }
+            Float weight;
+            console.print("Введите person.weight(число, не пустое): ");
+            while (true) {
+                String line = console.readln().trim();
+                try {
+                    weight = Float.parseFloat(line);
+                    break;
+                } catch (NumberFormatException e) {
+                }
+                console.print("person.weight(число, не пустое): ");
             }
             Location location = askLocation(console);
-            return new Person(name, birthday, passportID,location);
+            return new Person(name, birthday, height, weight, location);
         } catch (NoSuchElementException | IllegalStateException e) {
             console.printError("Ошибка чтения");
             return null;
+        } catch (AskBreak e) {
+            throw new RuntimeException(e);
         }
     }
 }

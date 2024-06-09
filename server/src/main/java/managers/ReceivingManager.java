@@ -2,7 +2,8 @@ package managers;
 
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.*;
+import org.apache.logging.log4j.Logger;
+
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

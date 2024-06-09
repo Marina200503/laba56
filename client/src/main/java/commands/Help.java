@@ -1,8 +1,11 @@
 package commands;
+import managers.*;
+import models.LabWork;
+import utility.*;
 
-import managers.CommandManager;
-import utility.Console;
-
+/**
+ * выводит справку по достпуным командам
+ */
 public class Help extends Command {
     private final Console console;
     private final CommandManager commandManager;
@@ -19,16 +22,9 @@ public class Help extends Command {
      */
     @Override
     public boolean execute(String[] arguments) {
-        if (!arguments[1].isEmpty()) {
-            console.println("Неправильное количество аргументов!");
-            console.println("Использование: '" + getName() + "'");
-            return false;
-        }
-
         commandManager.getCommands().values().forEach(command -> {
             console.printTable(command.getName(), command.getDescription());
         });
         return true;
     }
 }
-

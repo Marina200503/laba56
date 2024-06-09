@@ -16,20 +16,20 @@ public class Main {
 
         var commandManager = new CommandManager() {{
             register("help", new Help(console, this));
-            register("add_if_max", new AddIfMax(console, tcpmanager));
             register("info", new Info(console, tcpmanager));
+            register("max_by_id", new MaxById(console, tcpmanager));
             register("show", new Show(console, tcpmanager));
             register("add", new Add(console, tcpmanager));
-            register("update", new Update(console, tcpmanager));
+            register("update_id", new UpdateId(console, tcpmanager));
             register("remove_by_id", new RemoveById(console, tcpmanager));
             register("clear", new Clear(console, tcpmanager));
-            register("execute_script", new ExecuteScript(console));
+            register("execute_script", new ExecuteScriptFileName(console));
             register("exit", new Exit(console));
+            register("add_if_max", new AddIfIdMax(console, tcpmanager));
             register("remove_greater", new RemoveGreater(console, tcpmanager));
-            register("remove_lower", new RemoveLower(console, tcpmanager));
-            register("min_by_minimal_point", new MinByMinimalPoint(console, tcpmanager));
-            register("sum_of_minimal_point", new SumOfMinimalPoint(console, tcpmanager));
-            register("print_ascending", new PrintAscending(console, tcpmanager));
+            register("print_field_descending_difficulty", new PrintFieldDescendingDifficulty(console, tcpmanager));
+            register("count_greater_than_difficulty", new CountGreaterThanDifficulty(console, tcpmanager));
+            register("head", new Head(console, tcpmanager));
         }};
 
         new Runner(console, commandManager, tcpmanager).interactiveMode();
